@@ -1,0 +1,178 @@
+#!/usr/bin/python3
+
+##
+## EPITECH PROJECT, 2021
+## B-MAT-100-PAR-1-1-104intersection-yanis.berkane
+## File description:
+## 104intersection
+##
+
+import sys
+import math
+
+def verif():
+    for i in range(1, 9):
+        if (sys.argv[i].lstrip('-').isdigit() == False):
+            return 1
+    return 0
+
+if (len(sys.argv) == 9 and verif() != 1):
+    xp = int(sys.argv[2])
+    yp = int(sys.argv[3])
+    zp = int(sys.argv[4])
+    xv = int(sys.argv[5])
+    yv = int(sys.argv[6])
+    zv = int(sys.argv[7])
+    radius = int(sys.argv[8])
+
+def discriminant(a, b, c):
+    delta = b**2 - (4 * a * c)
+    return delta
+
+def equal_solution(a, b, c):
+    delta = discriminant(a, b, c)
+    sol = []
+    if (delta > 0):
+        res1 = (-b + math.sqrt(delta)) / (2 * a)
+        res2 = (-b - math.sqrt(delta)) / (2 * a)
+        sol.append(res1)
+        sol.append(res2)
+    elif (delta == 0):
+        res = (-b) / (2 * a)
+        sol.append(res)
+    return sol
+
+def line_coords(xp, yp, zp, xv, yv, zv, t):
+    sol = []
+    xt = xp + t * xv
+    yt = yp + t * yv
+    zt = zp + t * zv
+    sol.append(xt)
+    sol.append(yt)
+    sol.append(zt)
+    return sol
+
+def get_sphere_intercs_cofs(xp, yp, zp, xv, yv, zv, r):
+    factors = []
+    a = xv * xv + yv * yv + zv * zv
+    b = (2 * xp * xv) + (2 * yp * yv) + (2 * zp * zv)
+    c = xp * xp + yp * yp + zp * zp - r * r
+    factors.append(a)
+    factors.append(b)
+    factors.append(c)
+    return factors
+
+def get_cylinder_intercs_cofs(xp, yp, zp, xv, yv, zv, r):
+    factors = []
+    a = xv * xv + yv * yv
+    b = (2 * xp * xv) + (2 * yp * yv)
+    c = xp * xp + yp * yp - r * r
+    factors.append(a)
+    factors.append(b)
+    factors.append(c)
+    return factors
+
+def get_cone_intercs_cofs(xp, yp, zp, xv, yv, zv, deg):
+    factors = []
+    sqrtan = math.tan(deg) * math.tan(deg)
+    a = (xv * xv) + (yv * yv) - ((sqrtan) * (zv * zv))
+    b = 2 * ((xp * xv) + (yp * yv) - ((zp * zv) * sqrtan))
+    c =  (xp * xp) + (yp * yp) - (sqrtan * (zp * zp))
+    factors.append(a)
+    factors.append(b)
+    factors.append(c)
+    return factors
+
+def cone():
+    rds = math.radians(int(sys.argv[8]))
+    inter = get_cone_intercs_cofs(xp, yp, zp, xv, yv, zv, rds)
+    a = inter[0]
+    b = inter[1]
+    c = inter[2]
+    print(f"Cone with a {sys.argv[8]} degree angle")
+    print(f"Line passing through the point ({sys.argv[2]}, {sys.argv[3]}, {sys.argv[4]}) and parallel to the vector ({sys.argv[5]}, {sys.argv[6]}, {sys.argv[7]})")
+    if (a == 0):
+        print("There is an infinite number of intersection points.")
+        return
+    delta = discriminant(a, b, c)
+    if (delta == 0):
+        res = (-b) / (2 * a)
+        print(f"1 intersection point:\n{(xp + res * xv):.3f}, {(yp + res * yv):.3f}, {(zp + res * zv):.3f}")
+    elif (delta > 0):
+        res1 = (-b + math.sqrt(delta)) / (2 * a)
+        res2 = (-b - math.sqrt(delta)) / (2 * a)
+        print(f"2 intersection points:\n({(xp + res1 * xv):.3f}, {(yp + res1 * yv):.3f}, {(zp + res1 * zv):.3f})\n"
+        f"({(xp + res2 * xv):.3f}, {(yp + res2 * yv):.3f}, {(zp + res2 * zv):.3f})")
+    else:
+        print("No intersection point.")
+    sys.exit(0)
+
+def cylinder():
+    inter = get_cylinder_intercs_cofs(xp, yp, zp, xv, yv, zv, radius)
+    a = inter[0]
+    b = inter[1]
+    c = inter[2]
+    print("Cylinder of radius", sys.argv[8])
+    print(f"Line passing through the point ({sys.argv[2]}, {sys.argv[3]}, {sys.argv[4]}) and parallel to the vector ({sys.argv[5]}, {sys.argv[6]}, {sys.argv[7]})")
+    if (a == 0):
+        print("There is an infinite number of intersection points.")
+        return
+    delta = discriminant(a, b, c)
+    if (delta == 0):
+        res = (-b) / (2 * a)
+        print(f"1 intersection point:\n{(xp + res * xv):.3f}, {(yp + res * yv):.3f}, {(zp + res * zv):.3f}")
+    elif (delta > 0):
+        res1 = (-b + math.sqrt(delta)) / (2 * a)
+        res2 = (-b - math.sqrt(delta)) / (2 * a)
+        print(f"2 intersection points:\n({(xp + res1 * xv):.3f}, {(yp + res1 * yv):.3f}, {(zp + res1 * zv):.3f})\n"
+        f"({(xp + res2 * xv):.3f}, {(yp + res2 * yv):.3f}, {(zp + res2 * zv):.3f})")
+    else:
+        print("No intersection point.")
+    sys.exit(0)
+
+def sphere():
+    inter = get_sphere_intercs_cofs(xp, yp, zp, xv, yv, zv, radius)
+    a = inter[0]
+    b = inter[1]
+    c = inter[2]
+    if (a == 0):
+        sys.exit(84)
+    print("Sphere of a radius", sys.argv[8])
+    print(f"Line passing through the point ({sys.argv[2]}, {sys.argv[3]}, {sys.argv[4]}) and parallel to the vector ({sys.argv[5]}, {sys.argv[6]}, {sys.argv[7]})")
+    delta = discriminant(a, b, c)
+    if (delta == 0):
+        res = (-b) / (2 * a)
+        print(f"1 intersection point:\n({(xp + res * xv):.3f}, {(yp + res * yv):.3f}, {(zp + res * zv):.3f})")
+    elif (delta > 0):
+        res1 = (-b + math.sqrt(delta)) / (2 * a)
+        res2 = (-b - math.sqrt(delta)) / (2 * a)
+        print(f"2 intersection points:\n({(xp + res1 * xv):.3f}, {(yp + res1 * yv):.3f}, {(zp + res1 * zv):.3f})\n"
+        f"({(xp + res2 * xv):.3f}, {(yp + res2 * yv):.3f}, {(zp + res2 * zv):.3f})")
+    else:
+        print("No intersection point.")
+    sys.exit(0)
+
+def intersection():
+    if (sys.argv[1] == "1"):
+        sphere()
+    elif (sys.argv[1] == "2"):
+        cylinder()
+    elif (sys.argv[1] == "3"):
+        cone()
+    else:
+        sys.exit(84)
+        return 84
+
+def main():
+    help = open("help.txt", "r")
+    read = help.readlines()
+    if (len(sys.argv) == 2 and sys.argv[1] == "-h"):
+        print("".join(read))
+    elif (len(sys.argv) < 9 or verif() == 1):
+        sys.exit(84)
+        return 84
+    else:
+        intersection()
+    sys.exit(0)
+
+main()
